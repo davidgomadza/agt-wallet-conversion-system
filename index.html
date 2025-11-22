@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGT Wallet Conversion Kit with BTCYT Faucet</title>
+    <style>
+        :root {
+            --primary: #3a86ff;
+            --secondary: #8338ec;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --btcyt: #f7931a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .card h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .conversion-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .conversion-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--light);
+            font-size: 1rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .convert-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .convert-btn:hover {
+            background: #2a75e6;
+        }
+        
+        .result-section {
+            margin-top: 20px;
+        }
+        
+        .result-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            word-break: break-all;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .copy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #2a75e6;
+        }
+        
+        .info-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .info-card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-card ul {
+            list-style-type: none;
+        }
+        
+        .info-card li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-card li:last-child {
+            border-bottom: none;
+        }
+        
+        .wallet-types {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .wallet-type {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .wallet-type.active {
+            border-color: var(--primary);
+            background: rgba(58, 134, 255, 0.2);
+        }
+        
+        .wallet-type:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .batch-conversion {
+            margin-top: 30px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--light);
+            font-size: 1rem;
+            resize: vertical;
+            font-family: monospace;
+        }
+        
+        .batch-result {
+            margin-top: 20px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .success-message {
+            background: rgba(6, 214, 160, 0.1);
+            border: 1px solid rgba(6, 214, 160, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .btcyt-badge {
+            background: rgba(247, 147, 26, 0.2);
+            border: 1px solid rgba(247, 147, 26, 0.5);
+            color: var(--btcyt);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 10px;
+        }
+        
+        .fee-info {
+            background: rgba(247, 147, 26, 0.1);
+            border: 1px solid rgba(247, 147, 26, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .fee-info i {
+            color: var(--btcyt);
+            font-size: 1.5rem;
+        }
+        
+        .wallet-details {
+            margin-top: 20px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: var(--gray);
+        }
+        
+        .detail-value {
+            font-weight: bold;
+        }
+        
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .transactions-table th, .transactions-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .transactions-table th {
+            color: var(--gray);
+            font-weight: 500;
+        }
+        
+        .fee-amount {
+            color: var(--btcyt);
+            font-weight: bold;
+        }
+        
+        .balance-display {
+            background: rgba(247, 147, 26, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--btcyt);
+            margin: 10px 0;
+        }
+        
+        .balance-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .faucet-section {
+            margin-top: 30px;
+        }
+        
+        .faucet-balances {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .token-balance {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .token-symbol {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .token-amount {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .claim-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .claim-btn:hover {
+            background: #05b587;
+        }
+        
+        .claim-btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AGT Wallet Conversion Kit <span class="btcyt-badge">BTCYT</span></h1>
+            <p class="subtitle">Convert J6 and J8 wallet formats to AGT wallet format with integrated BTCYT faucet</p>
+        </header>
+        
+        <div class="card">
+            <h2><i>🔄</i> Wallet Conversion</h2>
+            
+            <div class="fee-info">
+                <i>💰</i>
+                <div>
+                    <strong>BTCYT Faucet System:</strong> Each new wallet receives 1 BTCYT for transaction fees. Each transaction costs 0.000000008 BTCYT.
+                </div>
+            </div>
+            
+            <div class="wallet-types">
+                <div class="wallet-type active" id="single-conversion-option">
+                    <h3>Single Conversion</h3>
+                    <p>Convert one wallet at a time</p>
+                </div>
+                <div class="wallet-type" id="batch-conversion-option">
+                    <h3>Batch Conversion</h3>
+                    <p>Convert multiple wallets</p>
+                </div>
+            </div>
+            
+            <div id="single-conversion-section">
+                <div class="conversion-section">
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label for="wallet-format">Source Wallet Format</label>
+                            <select id="wallet-format">
+                                <option value="j6">J6 Format</option>
+                                <option value="j8">J8 Format</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="source-wallet">Source Wallet Address</label>
+                            <input type="text" id="source-wallet" placeholder="Enter J6 or J8 wallet address">
+                        </div>
+                        
+                        <button class="convert-btn" id="convert-btn">Convert to AGT Format</button>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Converted AGT Wallet</h3>
+                        <div class="result-box">
+                            <span id="converted-wallet">Conversion result will appear here</span>
+                            <button class="copy-btn" id="copy-wallet-btn" disabled>Copy</button>
+                        </div>
+                        
+                        <div class="wallet-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Initial BTCYT Balance:</span>
+                                <span class="detail-value">1.00000000 BTCYT</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Transaction Fee:</span>
+                                <span class="detail-value fee-amount">0.000000008 BTCYT</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Estimated Transactions:</span>
+                                <span class="detail-value">125,000,000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="batch-conversion-section" class="hidden">
+                <div class="batch-conversion">
+                    <div class="input-group">
+                        <label for="batch-wallet-format">Source Wallet Format</label>
+                        <select id="batch-wallet-format">
+                            <option value="j6">J6 Format</option>
+                            <option value="j8">J8 Format</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="batch-wallets">Enter Wallet Addresses (one per line)</label>
+                        <textarea id="batch-wallets" placeholder="Paste J6 or J8 wallet addresses, one per line"></textarea>
+                    </div>
+                    
+                    <button class="convert-btn" id="batch-convert-btn">Convert All to AGT Format</button>
+                    
+                    <div class="batch-result">
+                        <h3>Converted AGT Wallets</h3>
+                        <div class="result-box">
+                            <textarea id="batch-results" readonly placeholder="Converted AGT wallets will appear here"></textarea>
+                        </div>
+                        <button class="copy-btn" id="copy-batch-btn" disabled style="width: 100%; margin-top: 10px;">Copy All Results</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><i>💰</i> BTCYT Faucet & Token Distribution</h2>
+            
+            <div class="faucet-section">
+                <div class="input-group">
+                    <label for="faucet-wallet">Your AGT Wallet Address</label>
+                    <input type="text" id="faucet-wallet" placeholder="Enter your AGT wallet address to claim tokens">
+                </div>
+                
+                <button class="claim-btn" id="claim-btn">Claim 1 BTCYT + All Tokens from Faucet</button>
+                
+                <div class="fee-info" style="margin-top: 15px;">
+                    <i>ℹ️</i>
+                    <div>
+                        <strong>Faucet Distribution:</strong> Each wallet receives 1 BTCYT for transaction fees plus all AGT ecosystem tokens from the genesis wallet.
+                    </div>
+                </div>
+                
+                <div class="faucet-balances">
+                    <div class="token-balance">
+                        <div class="token-symbol">BTCYT</div>
+                        <div class="token-amount" id="faucet-btcyt">1000.00000000</div>
+                        <div class="balance-label">Available in Faucet</div>
+                    </div>
+                    <div class="token-balance">
+                        <div class="token-symbol">AGT</div>
+                        <div class="token-amount" id="faucet-agt">1000.00000000</div>
+                        <div class="balance-label">Available in Faucet</div>
+                    </div>
+                    <div class="token-balance">
+                        <div class="token-symbol">S96t'</div>
+                        <div class="token-amount" id="faucet-s96t">1000.00000000</div>
+                        <div class="balance-label">Available in Faucet</div>
+                    </div>
+                    <div class="token-balance">
+                        <div class="token-symbol">BTC</div>
+                        <div class="token-amount" id="faucet-btc">1000.00000000</div>
+                        <div class="balance-label">Available in Faucet</div>
+                    </div>
+                    <div class="token-balance">
+                        <div class="token-symbol">GTPS</div>
+                        <div class="token-amount" id="faucet-gtps">1000.00000000</div>
+                        <div class="balance-label">Available in Faucet</div>
+                    </div>
+                    <div class="token-balance">
+                        <div class="token-symbol">AGOLD</div>
+                        <div class="token-amount" id="faucet-agold">1000.00000000</div>
+                        <div class="balance-label">Available in Faucet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><i>💰</i> BTCYT Balance & Transaction Simulation</h2>
+            
+            <div class="balance-display">
+                <div class="balance-label">Current BTCYT Balance</div>
+                <div class="balance-amount" id="btcyt-balance">0.00000000</div>
+                <div class="balance-label">Bitcoinayt (BTCYT)</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="transaction-count">Simulate Transactions</label>
+                <input type="number" id="transaction-count" min="1" max="125000000" value="1000" placeholder="Number of transactions to simulate">
+            </div>
+            
+            <button class="convert-btn" id="simulate-btn">Simulate Transactions</button>
+            
+            <div class="wallet-details">
+                <div class="detail-item">
+                    <span class="detail-label">Transactions Simulated:</span>
+                    <span class="detail-value" id="simulated-count">0</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Fees Paid:</span>
+                    <span class="detail-value fee-amount" id="total-fees">0 BTCYT</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Remaining Balance:</span>
+                    <span class="detail-value" id="remaining-balance">0.00000000 BTCYT</span>
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 20px;">Transaction History</h3>
+            <table class="transactions-table">
+                <thead>
+                    <tr>
+                        <th>TX ID</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Fee</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="transaction-history">
+                    <!-- Transaction history will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-card">
+                <h3><i>ℹ️</i> About J6 Format</h3>
+                <ul>
+                    <li>6-character wallet identifier</li>
+                    <li>Used in legacy AGT systems</li>
+                    <li>Example: J6A3B9</li>
+                    <li>Limited address space</li>
+                </ul>
+            </div>
+            
+            <div class="info-card">
+                <h3><i>ℹ️</i> About J8 Format</h3>
+                <ul>
+                    <li>8-character wallet identifier</li>
+                    <li>Extended version of J6</li>
+                    <li>Example: J8C7D2E5</li>
+                    <li>Larger address space</li>
+                </ul>
+            </div>
+            
+            <div class="info-card">
+                <h3><i>💰</i> BTCYT Fee System</h3>
+                <ul>
+                    <li>Fee currency: Bitcoinayt (BTCYT)</li>
+                    <li>Initial balance: 1 BTCYT per wallet</li>
+                    <li>Transaction cost: 0.000000008 BTCYT</li>
+                    <li>Ultra-low fee structure</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><i>🔗</i> AGT Wallet Integration</h2>
+            <p>After conversion, you can use your AGT wallet with the coin dispensing machine:</p>
+            
+            <div class="result-box" style="margin-top: 15px;">
+                <span>https://agtwallet-bestest.vercel.app/</span>
+                <button class="copy-btn" id="copy-wallet-link-btn">Copy Link</button>
+            </div>
+            
+            <div class="success-message" style="margin-top: 20px;">
+                <p><strong>Note:</strong> The AGT wallet format (agt1qzxk...) is compatible with all AGT ecosystem services including the coin dispensing machine. All transactions use BTCYT as the fee currency.</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>AGT Wallet Conversion Kit with BTCYT Faucet | Ultra-low transaction fees: 0.000000008 BTCYT per transaction</p>
+            <p>All conversions are processed locally in your browser for security</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM elements
+        const singleConversionOption = document.getElementById('single-conversion-option');
+        const batchConversionOption = document.getElementById('batch-conversion-option');
+        const singleConversionSection = document.getElementById('single-conversion-section');
+        const batchConversionSection = document.getElementById('batch-conversion-section');
+        const walletFormat = document.getElementById('wallet-format');
+        const sourceWallet = document.getElementById('source-wallet');
+        const convertBtn = document.getElementById('convert-btn');
+        const convertedWallet = document.getElementById('converted-wallet');
+        const copyWalletBtn = document.getElementById('copy-wallet-btn');
+        const batchWalletFormat = document.getElementById('batch-wallet-format');
+        const batchWallets = document.getElementById('batch-wallets');
+        const batchConvertBtn = document.getElementById('batch-convert-btn');
+        const batchResults = document.getElementById('batch-results');
+        const copyBatchBtn = document.getElementById('copy-batch-btn');
+        const copyWalletLinkBtn = document.getElementById('copy-wallet-link-btn');
+        const btcytBalance = document.getElementById('btcyt-balance');
+        const transactionCount = document.getElementById('transaction-count');
+        const simulateBtn = document.getElementById('simulate-btn');
+        const simulatedCount = document.getElementById('simulated-count');
+        const totalFees = document.getElementById('total-fees');
+        const remainingBalance = document.getElementById('remaining-balance');
+        const transactionHistory = document.getElementById('transaction-history');
+        const faucetWallet = document.getElementById('faucet-wallet');
+        const claimBtn = document.getElementById('claim-btn');
+        
+        // Faucet balance elements
+        const faucetBtcyt = document.getElementById('faucet-btcyt');
+        const faucetAgt = document.getElementById('faucet-agt');
+        const faucetS96t = document.getElementById('faucet-s96t');
+        const faucetBtc = document.getElementById('faucet-btc');
+        const faucetGtps = document.getElementById('faucet-gtps');
+        const faucetAgold = document.getElementById('faucet-agold');
+
+        // Constants
+        const INITIAL_BTCYT_BALANCE = 1.0;
+        const TRANSACTION_FEE = 0.000000008;
+        let currentBalance = 0;
+        let transactionCounter = 0;
+
+        // Faucet configuration
+        const tokenList = [
+            { name: "Advanced Genetic Synthesis Technology", symbol: "AGT" },
+            { name: "Sealofapprovalis7628396t' S96t'", symbol: "S96t'" },
+            { name: "Bitcoinayt", symbol: "BTCYT" },
+            { name: "Bitcoin", symbol: "BTC" },
+            { name: "Global Transaction Payment Solution", symbol: "GTPS" },
+            { name: "AGT Gold", symbol: "AGOLD" }
+        ];
+
+        // Faucet initial balance
+        const faucetBalances = {};
+        tokenList.forEach(t => faucetBalances[t.symbol] = 1000.0);
+
+        // Owner wallets (genesis wallets)
+        const ownerAddresses = [
+            "J6IJNHEKBAAFDHMPLIMEEEJBODGCHMPFIBKFMCNAGNFNGEOAHJEB",
+            "J6J1nif7Xr1YBoBxiBwFhy5WsWJUhn2Rhc3ylwnAlQkL4WF745Vx"
+        ];
+
+        // Per-address claim cooldown tracking
+        const lastClaim = {};
+        const claimInterval = 24 * 60 * 60 * 1000; // 24 hours
+
+        // Conversion option toggle
+        singleConversionOption.addEventListener('click', () => {
+            singleConversionOption.classList.add('active');
+            batchConversionOption.classList.remove('active');
+            singleConversionSection.classList.remove('hidden');
+            batchConversionSection.classList.add('hidden');
+        });
+
+        batchConversionOption.addEventListener('click', () => {
+            batchConversionOption.classList.add('active');
+            singleConversionOption.classList.remove('active');
+            batchConversionSection.classList.remove('hidden');
+            singleConversionSection.classList.add('hidden');
+        });
+
+        // Single wallet conversion
+        convertBtn.addEventListener('click', () => {
+            const format = walletFormat.value;
+            const input = sourceWallet.value.trim();
+            
+            if (!input) {
+                alert('Please enter a wallet address to convert');
+                return;
+            }
+            
+            const converted = convertWallet(format, input);
+            convertedWallet.textContent = converted;
+            copyWalletBtn.disabled = false;
+            faucetWallet.value = converted;
+            
+            // Reset balance for new wallet
+            resetBalance();
+        });
+
+        // Batch wallet conversion
+        batchConvertBtn.addEventListener('click', () => {
+            const format = batchWalletFormat.value;
+            const inputs = batchWallets.value.trim().split('\n').filter(line => line.trim() !== '');
+            
+            if (inputs.length === 0) {
+                alert('Please enter at least one wallet address to convert');
+                return;
+            }
+            
+            const results = inputs.map(input => {
+                const converted = convertWallet(format, input.trim());
+                return `${input} -> ${converted}`;
+            }).join('\n');
+            
+            batchResults.value = results;
+            copyBatchBtn.disabled = false;
+        });
+
+        // Faucet claim functionality
+        claimBtn.addEventListener('click', () => {
+            const address = faucetWallet.value.trim();
+            if (!address) {
+                alert('Please enter a wallet address to claim tokens');
+                return;
+            }
+
+            if (!address.startsWith('agt1qzxk')) {
+                alert('Please enter a valid AGT wallet address (starting with agt1qzxk)');
+                return;
+            }
+
+            const now = Date.now();
+            const last = lastClaim[address] || 0;
+            if (now - last < claimInterval) {
+                const hours = Math.ceil((claimInterval - (now - last)) / (60 * 60 * 1000));
+                alert(`Please wait ${hours} hour(s) before claiming again.`);
+                return;
+            }
+
+            // Check if faucet has enough balance
+            for (const t of tokenList) {
+                if (faucetBalances[t.symbol] < 1.0) {
+                    alert(`Faucet empty for ${t.symbol}. Please refill from genesis wallet.`);
+                    return;
+                }
+            }
+
+            // Distribute tokens
+            for (const t of tokenList) {
+                faucetBalances[t.symbol] -= 1.0;
+            }
+
+            // Update faucet display
+            updateFaucetDisplay();
+
+            // Set initial BTCYT balance for the wallet
+            currentBalance = INITIAL_BTCYT_BALANCE;
+            updateBalanceDisplay();
+
+            // Add transaction record
+            addTransactionRecord('faucet', 'Credit', `+1.00000000 BTCYT`, '-', `${currentBalance.toFixed(8)} BTCYT`);
+            addTransactionRecord('faucet', 'Credit', `+1.00000000 of all tokens`, '-', 'Wallet funded');
+
+            lastClaim[address] = now;
+            alert(`✅ Success! 1 BTCYT and 1 of each token has been sent to ${address}.`);
+        });
+
+        // Transaction simulation
+        simulateBtn.addEventListener('click', () => {
+            if (currentBalance <= 0) {
+                alert('Please claim BTCYT from the faucet first');
+                return;
+            }
+
+            const count = parseInt(transactionCount.value) || 0;
+            
+            if (count <= 0) {
+                alert('Please enter a valid number of transactions');
+                return;
+            }
+            
+            simulateTransactions(count);
+        });
+
+        // Copy functionality
+        copyWalletBtn.addEventListener('click', () => {
+            copyToClipboard(convertedWallet.textContent);
+            showCopyFeedback(copyWalletBtn);
+        });
+
+        copyBatchBtn.addEventListener('click', () => {
+            copyToClipboard(batchResults.value);
+            showCopyFeedback(copyBatchBtn);
+        });
+
+        copyWalletLinkBtn.addEventListener('click', () => {
+            copyToClipboard('https://agtwallet-bestest.vercel.app/');
+            showCopyFeedback(copyWalletLinkBtn);
+        });
+
+        // Wallet conversion logic
+        function convertWallet(format, input) {
+            // Remove any spaces or special characters
+            const cleanInput = input.replace(/[^a-zA-Z0-9]/g, '');
+            
+            let baseString;
+            
+            if (format === 'j6') {
+                // J6 format: 6 characters
+                if (cleanInput.length !== 6) {
+                    return 'Invalid J6 format: must be exactly 6 characters';
+                }
+                baseString = cleanInput.toLowerCase();
+            } else if (format === 'j8') {
+                // J8 format: 8 characters
+                if (cleanInput.length !== 8) {
+                    return 'Invalid J8 format: must be exactly 8 characters';
+                }
+                baseString = cleanInput.toLowerCase();
+            } else {
+                return 'Unsupported wallet format';
+            }
+            
+            // AGT wallet format: agt1qzxk + encoded data + checksum
+            const agtPrefix = 'agt1qzxk';
+            
+            // Create a hash from the input to generate the rest of the address
+            let hash = 0;
+            for (let i = 0; i < baseString.length; i++) {
+                const char = baseString.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            
+            // Generate the rest of the address using the hash
+            const encodedPart = Math.abs(hash).toString(36).substring(0, 16);
+            
+            // Combine to form the complete AGT wallet address
+            return `${agtPrefix}${encodedPart}`;
+        }
+
+        // Balance and transaction functions
+        function resetBalance() {
+            currentBalance = 0;
+            transactionCounter = 0;
+            updateBalanceDisplay();
+            
+            // Reset transaction history
+            transactionHistory.innerHTML = '';
+        }
+
+        function simulateTransactions(count) {
+            let feesPaid = 0;
+            let newBalance = currentBalance;
+            
+            for (let i = 0; i < count; i++) {
+                if (newBalance >= TRANSACTION_FEE) {
+                    newBalance -= TRANSACTION_FEE;
+                    feesPaid += TRANSACTION_FEE;
+                    transactionCounter++;
+                    
+                    // Add to transaction history
+                    const txId = `tx${String(transactionCounter).padStart(8, '0')}`;
+                    addTransactionRecord(txId, 'Transfer', '-', `-${TRANSACTION_FEE.toFixed(8)} BTCYT`, `${newBalance.toFixed(8)} BTCYT`);
+                } else {
+                    alert(`Insufficient funds after ${i} transactions. Need ${TRANSACTION_FEE} BTCYT but only have ${newBalance.toFixed(8)} BTCYT remaining.`);
+                    break;
+                }
+            }
+            
+            currentBalance = newBalance;
+            updateBalanceDisplay();
+            simulatedCount.textContent = transactionCounter.toLocaleString();
+            totalFees.textContent = `${feesPaid.toFixed(8)} BTCYT`;
+            remainingBalance.textContent = `${currentBalance.toFixed(8)} BTCYT`;
+        }
+
+        function addTransactionRecord(txId, type, amount, fee, balance) {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${txId}</td>
+                <td>${type}</td>
+                <td>${amount}</td>
+                <td class="fee-amount">${fee}</td>
+                <td>${balance}</td>
+            `;
+            transactionHistory.appendChild(newRow);
+        }
+
+        function updateBalanceDisplay() {
+            btcytBalance.textContent = currentBalance.toFixed(8);
+        }
+
+        function updateFaucetDisplay() {
+            faucetBtcyt.textContent = faucetBalances['BTCYT'].toFixed(8);
+            faucetAgt.textContent = faucetBalances['AGT'].toFixed(8);
+            faucetS96t.textContent = faucetBalances["S96t'"].toFixed(8);
+            faucetBtc.textContent = faucetBalances['BTC'].toFixed(8);
+            faucetGtps.textContent = faucetBalances['GTPS'].toFixed(8);
+            faucetAgold.textContent = faucetBalances['AGOLD'].toFixed(8);
+        }
+
+        // Utility functions
+        function copyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+        }
+
+        function showCopyFeedback(button) {
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        }
+
+        // Initialize with example data
+        window.addEventListener('load', () => {
+            // Set example for single conversion
+            sourceWallet.value = 'J6A3B9';
+            
+            // Set examples for batch conversion
+            batchWallets.value = 'J6A3B9\nJ8C7D2E5\nJ6F1G8\nJ8H4I7J2';
+            
+            // Initialize displays
+            updateBalanceDisplay();
+            updateFaucetDisplay();
+        });
+    </script>
+</body>
+</html>
